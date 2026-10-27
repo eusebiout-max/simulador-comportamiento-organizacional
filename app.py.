@@ -1,0 +1,72 @@
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.set_page_config(
+    page_title="Simulador de Comportamiento Organizacional",
+    page_icon="📊",
+    layout="wide"
+)
+
+st.title("🧩 Simulador del Comportamiento Organizacional")
+st.markdown("### Modelado analítico basado en el aprendizaje humano")
+st.info(
+    "**“Todo comportamiento complejo es aprendido. Si se quiere explicar y predecir "
+    "el comportamiento, es necesario entender la forma en que aprende la gente.”**\n\n"
+    "— *Robbins y Judge (2009, p. 54)*"
+)
+
+st.sidebar.header("🎛️ Controles del Simulador")
+st.sidebar.markdown("Modifica los parámetros para observar cómo reacciona el modelo analítico en tiempo real:")
+
+tasa_aprendizaje = st.sidebar.slider(
+    "Velocidad de Aprendizaje (Constante temporal)", 
+    min_value=5, max_value=25, value=10, step=1
+)
+
+pendiente_estm = st.sidebar.slider(
+    "Intensidad de Estímulos (Pendiente de Frontera)", 
+    min_value=0.0, max_value=1.5, value=0.2, step=0.05
+)
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# --- Panel 1 ---
+epochs = np.linspace(1, 50, 50)
+error = 100 * np.exp(-epochs / tasa_aprendizaje) + np.random.normal(0, 1.0, 50)
+error = np.clip(error, 0, 100)
+comportamiento_adquirido = 100 - error
+
+axes[0].plot(epochs, comportamiento_adquirido, color='#1f77b4', linewidth=3, label='Comportamiento Adquirido (%)')
+axes[0].plot(epochs, error, color='#d62728', linestyle='--', linewidth=1.5, label='Incertidumbre / Error')
+axes[0].set_title('Dinámica del Aprendizaje Humano', fontsize=12, fontweight='bold')
+axes[0].set_xlabel('Experiencia / Tiempo', fontsize=10)
+axes[0].set_ylabel('Nivel de Dominio', fontsize=10)
+axes[0].set_ylim(0, 105)
+axes[0].legend(loc='center right', frameon=True)
+
+# --- Panel 2 ---
+np.random.seed(42)
+X_estm = np.random.randn(80, 2)
+y_conducta = (X_estm[:, 1] - X_estm[:, 0] > pendiente_estm).astype(int)
+
+axes[1].scatter(X_estm[:, 0], X_estm[:, 1], c=y_conducta, cmap='coolwarm', edgecolors='k', s=70, alpha=0.8)
+axes[1].set_title('Predicción del Comportamiento según Estímulos', fontsize=12, fontweight='bold')
+axes[1].set_xlabel('Estímulo Ambiental 1', fontsize=10)
+axes[1].set_ylabel('Estímulo Ambiental 2', fontsize=10)
+
+x_vals = np.linspace(-2.5, 2.5, 100)
+y_vals = pendiente_estm + x_vals  
+axes[1].plot(x_vals, y_vals, color='green', linewidth=2.5, label='Frontera Predictiva')
+axes[1].legend(loc='upper left', frameon=True)
+
+plt.tight_layout()
+st.pyplot(fig)
+
+st.markdown("---")
+st.markdown("**Interpretación del modelo:**")
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown("- **Eje temporal (Izquierda):** Refleja la transición del error inicial hacia la consolidación de la conducta compleja mediante práctica y refuerzo.")
+with col2:
+    st.markdown("- **Frontera verde (Derecha):** Modelo analítico que permite a la administración anticiparse a las reacciones del capital humano ante estímulos ambientales.")
